@@ -1,0 +1,39 @@
+name: Build Windows launcher
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Install .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Publish standalone Windows app
+        run: >-
+          dotnet publish PS4Launcher/PS4Launcher.csproj
+          --configuration Release
+          --runtime win-x64
+          --self-contained true
+          --output publish
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+
+      - name: Upload downloadable app
+        uses: actions/upload-artifact@v4
+        with:
+          name: PS4-PC-App-Launcher-Windows
+          path: publish/PS4Launcher.exe
+          if-no-files-found: error
+          retention-days: 30
