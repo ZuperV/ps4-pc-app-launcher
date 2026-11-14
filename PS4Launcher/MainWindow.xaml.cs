@@ -1,7 +1,9 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
@@ -75,9 +77,9 @@ public partial class MainWindow : Window
                             Arguments = shortcut.Arguments,
                             WorkingDirectory = shortcut.WorkingDirectory,
                             Category = Categorize(name, shortcut.Target),
-                            Icon = LoadIcon(shortcut.Target)
+                            Icon = LoadIcon(shortcut.Target),
+                            IsFavorite = _favorites.Contains(shortcut.Target)
                         };
-                        app.IsFavorite = _favorites.Contains(app.Path);
                         _allApps.Add(app);
                     }
                     catch
@@ -145,7 +147,7 @@ public partial class MainWindow : Window
     {
         try
         {
-            using var icon = Icon.ExtractAssociatedIcon(filePath);
+            using var icon = System.Drawing.Icon.ExtractAssociatedIcon(filePath);
             if (icon is null)
                 return null;
             using var bitmap = icon.ToBitmap();
@@ -241,12 +243,14 @@ public partial class MainWindow : Window
 
     private void AppList_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (AppList.SelectedItem is not AppItem app)
-        {
+        if (AppList.SelectedItem is AppItem app)
+            ShowAppDetails(app);
+        else
             ShowNoSelection();
-            return;
-        }
+    }
 
+    private void ShowAppDetails(AppItem app)
+    {
         SelectedAppName.Text = app.Name;
         SelectedAppCategory.Text = app.Category.ToUpperInvariant();
         SelectedAppPath.Text = app.Path;
@@ -280,9 +284,13 @@ public partial class MainWindow : Window
         SaveFavorites();
 
         if (_currentCategory == "Favorites" && !app.IsFavorite)
+        {
             ApplyFilters();
+        }
         else
-            AppList_SelectionChanged(AppList, new SelectionChangedEventArgs(Selector.SelectionChangedEvent, Array.Empty<object>(), Array.Empty<object>()));
+        {
+            ShowAppDetails(app);
+        }
     }
 
     private void LaunchSelectedApp()
@@ -360,13 +368,29 @@ public partial class MainWindow : Window
     private sealed record ShortcutInfo(string Target, string Arguments, string WorkingDirectory, string Name);
 }
 
-public sealed class AppItem
+public sealed class AppItem : INotifyPropertyChanged
 {
+    private bool _isFavorite;
+
     public string Name { get; set; } = string.Empty;
     public string Path { get; set; } = string.Empty;
     public string Arguments { get; set; } = string.Empty;
     public string WorkingDirectory { get; set; } = string.Empty;
     public string Category { get; set; } = "Apps";
     public ImageSource? Icon { get; set; }
-    public bool IsFavorite { get; set; }
+    public bool IsFavorite
+    {
+        get => _isFavorite;
+        set
+        {
+            if (_isFavorite == value)
+                return;
+            _isFavorite = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }
