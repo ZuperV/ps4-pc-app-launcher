@@ -1,44 +1,25 @@
-# PS4 PC App Launcher
+# PC Home — PS4-inspired Windows app launcher
 
-A Windows desktop launcher with a PlayStation 4-inspired interface. It scans apps installed on your PC and displays them as large PS4-style tiles, letting you launch them with one click.
-
-This project is not a real PS4 app or emulator. It is a Windows application that imitates the look and feel of a PS4 dashboard while launching software already installed on your computer.
+A small WPF desktop launcher that gives your Windows app shortcuts a console-style home screen. It is an independent desktop app, not PlayStation software or an emulator.
 
 ## Features
 
-- Dark PS4-style UI
-- Search box to filter apps
-- Loads app shortcuts from your Start Menu
-- Uses each app's icon for the tile
-- Launches installed EXE files
-- Works on Windows desktop
+- Scans user and shared Start Menu folders plus Desktop shortcuts.
+- Displays app icons and shortcut names in a tile grid.
+- Filters apps into Games, Apps, and Media using simple name/path matching.
+- Saves favorites locally in your Windows profile.
+- Search, keyboard navigation, launch buttons, and a live clock.
 
-## Requirements
+## Run on Windows
 
-- Windows 10 or Windows 11
-- .NET 8 SDK
-- Visual Studio 2022 with .NET desktop development workload
+Requirements: Windows 10/11 and the .NET 8 SDK (or Visual Studio 2022 with the .NET desktop workload).
 
-## Run locally
+1. Open `PS4Launcher.sln` in Visual Studio.
+2. Restore and build the project.
+3. Press F5 to run.
 
-1. Open the solution in Visual Studio 2022.
-2. Restore NuGet packages.
-3. Set the startup project to `PS4Launcher`.
-4. Press F5 to run.
-
-## Project structure
-
-- `PS4Launcher/` – WPF app source code
-- `README.md` – project overview
-- `PS4Launcher.sln` – Visual Studio solution
+The app only scans shortcut locations; it does not search the whole drive. Favorite data is stored in `%LOCALAPPDATA%\PS4PcLauncher\favorites.json`.
 
 ## Notes
 
-The app scans common Start Menu folders and Desktop shortcuts to find installed apps. It uses Windows shell integration to read app shortcuts and launch them.
-
-If you want, this project can be expanded with:
-
-- categories like Games, Apps, Media, Utilities
-- PS4-style vertical navigation
-- animated backgrounds and UI effects
-- keyboard navigation using PS4 controller-like controls
+The category assignment is a best-effort heuristic based on shortcut names and paths. You can still browse everything under Home and find apps using search. The window is fullscreen; press Escape to close it.
